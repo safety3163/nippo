@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作業日報システム</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Meiryo UI","Yu Gothic UI","メイリオ",sans-serif;font-size:14px;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.app{max-width:960px;margin:0 auto;padding:12px}
+h1{font-size:18px;font-weight:600;margin-bottom:2px}
+.subtitle{font-size:12px;color:#888;margin-bottom:12px}
+.tabs{display:flex;gap:2px;border-bottom:2px solid #ddd;margin-bottom:16px}
+.tab{padding:9px 18px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:4px 4px 0 0;transition:all .15s;font-family:inherit}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;background:#fff;font-weight:600}
+.tab:hover:not(.active){background:#eee;color:#444}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.section-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.header-band{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.header-top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:12px}
+.field-group{display:flex;flex-direction:column;gap:4px}
+.field-group label{font-size:12px;color:#888;font-weight:500}
+.time-box{display:flex;align-items:center;gap:6px;background:#f5f5f3;border:1px solid #ddd;border-radius:8px;padding:6px 12px}
+select,input[type=date],input[type=number],input[type=month]{font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:7px;background:#fff;color:#1a1a1a;outline:none}
+select{width:100%}
+.btn{padding:7px 16px;font-size:13px;border:1px solid #ccc;border-radius:7px;background:#fff;color:#1a1a1a;cursor:pointer;font-family:inherit}
+.btn:hover{background:#f0f0f0}
+.btn-primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-primary:hover{background:#333}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-danger{border-color:#f8a;color:#c00}
+.btn-danger:hover{background:#fff0f0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.work-entry{background:#f5f5f3;border:1px solid #e8e8e6;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.entry-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid #ddd;font-size:11px;font-weight:600;color:#666}
+.duration-pill{display:inline-block;background:#fff;border:1px solid #ddd;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600}
+.summary-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #f0f0f0}
+.summary-row:last-child{border-bottom:none}
+.summary-row.total{font-weight:700;font-size:14px;border-top:2px solid #ddd;margin-top:4px;padding-top:8px}
+.summary-label{color:#888}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.metric{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:12px;text-align:center}
+.metric-label{font-size:11px;color:#888;margin-bottom:4px}
+.metric-value{font-size:20px;font-weight:700}
+.metric-unit{font-size:12px;font-weight:400}
+.progress-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.progress-label{font-size:12px;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.progress-bar-wrap{flex:1;height:10px;background:#eee;border-radius:5px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:5px}
+.progress-val{font-size:12px;font-weight:600;min-width:48px;text-align:right;color:#555}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;margin:2px}
+.b0{background:#dbeafe;color:#1e40af}.b1{background:#dcfce7;color:#166534}
+.b2{background:#fef9c3;color:#854d0e}.b3{background:#ffe4e6;color:#9f1239}.b4{background:#ede9fe;color:#5b21b6}
+.log-item{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}
+.log-item:last-child{border-bottom:none}
+.eb-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-bar select,.filter-bar input{width:auto;min-width:120px}
+.work-line{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+.work-line:last-child{border-bottom:none}
+.work-line-time{color:#888;flex-shrink:0}
+.work-line-name{flex:1}
+.work-line-h{font-weight:600;flex-shrink:0}
+.warn{color:#b45309;font-size:12px;margin-top:6px;padding:6px 10px;background:#fef9c3;border-radius:6px;border:1px solid #fde68a}
+.ok-msg{color:#166534;font-size:13px}
+.err-msg{color:#c00;font-size:13px}
+.info-msg{color:#1e40af;font-size:13px}
+.syncing{color:#888;font-size:13px}
+.chart-wrap{position:relative;width:100%;height:220px}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.35);z-index:999;align-items:center;justify-content:center}
+#overlay.show{display:flex}
+.overlay-box{background:#fff;border-radius:12px;padding:28px 36px;text-align:center;font-size:15px;font-weight:600}
+.spinner{width:32px;height:32px;border:3px solid #eee;border-top-color:#1a1a1a;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:800px){
+  .header-top{flex-direction:column;gap:10px}
+  .grid2{grid-template-columns:1fr}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .btn{padding:9px 16px}
+  .btn-sm{padding:7px 12px}
+  select,input[type=date],input[type=number]{padding:9px 10px;font-size:14px}
+  .work-entry .grid2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="overlay"><div class="overlay-box"><div class="spinner"></div>Googleスプレッドシートに送信中...</div></div>
+<div class="app">
+  <h1>📋 作業日報システム</h1>
+  <p class="subtitle">入力・修正・集計・ダッシュボードをワンストップで管理</p>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('input',this)">✏️ 日報入力</button>
+    <button class="tab" onclick="switchTab('history',this)">📂 記録・修正</button>
+    <button class="tab" onclick="switchTab('dashboard',this)">📊 集計</button>
+    <button class="tab" onclick="switchTab('cross',this)">📐 品目×内容</button>
+    <button class="tab" onclick="switchTab('migrate',this)">⚙️ データ移行</button>
+  </div>
+
+  <div id="panel-input" class="panel active">
+    <div class="header-band">
+      <div class="header-top">
+        <div class="field-group">
+          <label>作業者名</label>
+          <select id="worker-name" style="width:150px">
+            <option value="">-- 選択 --</option>
+            <option>高野　豊</option><option>平間　茂</option><option>平間　弦</option>
+            <option>丹野　博文</option><option>草苅　忠</option><option>石倉　明音</option>
+            <option>東　一樹</option><option>岡崎　直人</option><option>平間　涼晴</option>
+            <option>小野寺　蒼生</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>作業日</label>
+          <input type="date" id="work-date" style="width:160px">
+        </div>
+        <div class="field-group">
+          <label>業務時間（開始 → 終了）</label>
+          <div class="time-box">
+            <select id="day-start" onchange="calcSummary()" style="width:72px;border:none;background:transparent;font-size:15px;font-weight:600;padding:0"></select>
+            <span style="color:#aaa">→</span>
+            <select id="day-end" onchange="calcSummary()" style="width:72px;border:none;background:transparent;font-size:15px;font-weight:600;padding:0"></select>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #eee;padding-top:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:12px;color:#888">その他休憩（夏場など固定休憩以外の休憩を追加）</span>
+          <button class="btn btn-sm" onclick="addExtraBreak()">＋ 休憩追加</button>
+        </div>
+        <div id="extra-breaks"></div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="section-title">時間サマリー</div>
+        <div class="summary-row"><span class="summary-label">業務時間</span><span id="s-duration">-- h</span></div>
+        <div class="summary-row"><span class="summary-label">作業時間合計</span><span id="s-work">0.00 h</span></div>
+        <div class="summary-row"><span class="summary-label">その他休憩</span><span id="s-extra">0.00 h</span></div>
+        <div class="summary-row"><span class="summary-label">固定休憩・空き <span id="s-break-detail" style="font-size:11px;color:#aaa"></span></span><span id="s-break">-- h</span></div>
+        <div class="summary-row total"><span>実働時間</span><span id="s-actual">-- h</span></div>
+        <div id="s-warn" class="warn" style="display:none"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">本日の作業一覧</div>
+        <div id="sum-entries" style="font-size:12px;color:#888">作業を追加してください</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="section-title" style="margin:0">作業内容</div>
+        <button class="btn btn-sm" onclick="addWorkEntry()">＋ 作業を追加</button>
+      </div>
+      <div id="work-entries"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="saveReport()">💾 保存（スプレッドシートに送信）</button>
+      <button class="btn" onclick="resetForm()">↺ リセット</button>
+      <span id="save-msg" style="font-size:13px;margin-left:4px"></span>
+    </div>
+  </div>
+
+  <div id="panel-history" class="panel">
+    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#795548">
+      📝 ここに表示されるのはこのタブレットで入力した記録のみです。全員分はGoogleスプレッドシートで確認できます。
+    </div>
+    <div class="filter-bar">
+      <select id="filter-worker" onchange="renderHistory()">
+        <option value="">全作業者</option>
+        <option>高野　豊</option><option>平間　茂</option><option>平間　弦</option>
+        <option>丹野　博文</option><option>草苅　忠</option><option>石倉　明音</option>
+        <option>東　一樹</option><option>岡崎　直人</option><option>平間　涼晴</option>
+        <option>小野寺　蒼生</option>
+      </select>
+      <input type="month" id="filter-month" onchange="renderHistory()">
+      <span id="record-count" style="font-size:12px;color:#888"></span>
+    </div>
+    <div class="card" id="history-list"><div style="text-align:center;color:#aaa;padding:2rem">記録がありません</div></div>
+  </div>
+
+  <div id="panel-dashboard" class="panel">
+    <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#2e7d32">
+      📊 このダッシュボードはこのタブレットの記録のみ集計しています。全員分はGoogleスプレッドシートをご確認ください。
+    </div>
+    <div class="filter-bar">
+      <input type="month" id="dash-month" onchange="renderDashboard()">
+      <select id="dash-worker" onchange="renderDashboard()" style="width:auto;min-width:140px">
+        <option value="">全作業者</option>
+        <option>高野　豊</option><option>平間　茂</option><option>平間　弦</option>
+        <option>丹野　博文</option><option>草苅　忠</option><option>石倉　明音</option>
+        <option>東　一樹</option><option>岡崎　直人</option><option>平間　涼晴</option>
+        <option>小野寺　蒼生</option>
+      </select>
+    </div>
+    <div class="metrics-grid" id="dash-metrics"></div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="card"><div class="section-title">作業品目別時間ランキング</div><div id="dash-items"></div></div>
+      <div class="card"><div class="section-title">作業内容別時間ランキング</div><div id="dash-types"></div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="section-title">作業者別稼働時間</div><div id="dash-workers"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">月次推移（作業時間合計）</div>
+      <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 品目×内容 クロス集計 -->
+  <div id="panel-cross" class="panel">
+    <div class="filter-bar">
+      <input type="month" id="cross-month" onchange="renderCross()" style="width:auto">
+    </div>
+    <div class="card">
+      <div class="section-title">作業品目 × 作業内容 クロス集計（このタブレットの記録）</div>
+      <p style="font-size:11px;color:#888;margin-bottom:8px">色が濃いほど時間が多いことを示します</p>
+      <div style="overflow-x:auto" id="cross-wrap"><div style="text-align:center;color:#aaa;padding:2rem">データなし</div></div>
+    </div>
+  </div>
+
+  <!-- データ移行 -->
+  <div id="panel-migrate" class="panel">
+    <div class="card" style="margin-bottom:14px">
+      <div class="section-title">📤 データのエクスポート</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">このタブレットに保存されている記録をJSONファイルとして書き出します。</p>
+      <button class="btn btn-primary" onclick="exportData()" style="margin-bottom:8px">💾 データをダウンロード</button>
+      <div id="export-msg" style="font-size:12px;margin-top:6px"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">📥 データのインポート</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">別のタブレットや旧バージョンからエクスポートしたJSONファイルを読み込みます。<br>既存のデータと統合されます（重複は自動でスキップ）。</p>
+      <input type="file" id="import-file" accept=".json" style="margin-bottom:10px;font-size:13px;width:100%">
+      <button class="btn btn-primary" onclick="importData()">📂 ファイルを読み込む</button>
+      <div id="import-msg" style="font-size:12px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const GAS_URL='https://script.google.com/macros/s/AKfycbwrfpS1VQYwUJUOu4d-2ZqcNork4RhfljRToJ6EuafRIkmhDBaqht9Mx5kvKWcCuQAU/exec';
+const WORK_ITEMS=['アドフラット','クロス・キャスターゲート','ゲート用パネル','防音パネル','門型ゲート','ハウス','サポート','支保工','トイレ','ガードフェンス','アルミ梯子','ベルブロック','安全ブロック','鉄筋フック','キャッチベルト','支柱類','親綱','平台車','ネット','テスリーナ','シート','エルス','出入庫','その他当社品','委託商品','片づけ・朝礼等','ネットハンガー'];
+const WORK_TYPES=['検収','整備','洗浄','修理','クランプ','組立','組換','現場工事','ドア再生（A品）','クリアリメイク','シール剥がし','該当無し'];
+const BAR_COLORS=['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2','#65a30d','#db2777'];
+const BADGE=['b0','b1','b2','b3','b4'];
+let reports=JSON.parse(localStorage.getItem('nippo_v1')||'[]');
+let editId=null,trendChart=null,entryCounter=0,ebCounter=0;
+function saveLocal(){localStorage.setItem('nippo_v1',JSON.stringify(reports));}
+function buildOpts(sel,def){
+  sel.innerHTML='';
+  for(let h=6;h<=23;h++){for(let m=0;m<60;m+=15){const v=pad(h)+':'+pad(m);const o=document.createElement('option');o.value=v;o.textContent=v;if(v===def)o.selected=true;sel.appendChild(o);}}
+  const last=document.createElement('option');last.value='24:00';last.textContent='24:00';if(def==='24:00')last.selected=true;sel.appendChild(last);
+}
+function pad(n){return String(n).padStart(2,'0');}
+function toMin(t){if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+m;}
+function getWorkMins(){let t=0;document.querySelectorAll('.work-entry').forEach(r=>{const s=toMin(r.querySelector('.e-start').value),e=toMin(r.querySelector('.e-end').value);if(s!==null&&e!==null&&e>s)t+=e-s;});return t;}
+function getExtraMins(){let t=0;document.querySelectorAll('.eb-row').forEach(r=>{const mins=parseInt(r.querySelector('.eb-mins').value)||0;t+=mins;});return t;}
+function calcFixedBreakMins(ds, de){
+  // 固定休憩：業務時間内に完全に含まれる場合のみカウント
+  const FIXED=[
+    {label:'午前休憩',s:600,e:615},   // 10:00-10:15
+    {label:'昼休憩',  s:720,e:780},   // 12:00-13:00
+    {label:'午後休憩',s:900,e:915},   // 15:00-15:15
+    {label:'残業休憩',s:1020,e:1035}, // 17:00-17:15
+  ];
+  let total=0, labels=[];
+  FIXED.forEach(b=>{if(b.s>=ds&&b.e<=de){total+=(b.e-b.s);labels.push(b.label);}});
+  return{total,labels};
+}
+function calcSummary(){
+  const ds=toMin(document.getElementById('day-start').value),de=toMin(document.getElementById('day-end').value);
+  const wm=getWorkMins(),em=getExtraMins();
+  document.getElementById('s-work').textContent=(wm/60).toFixed(2)+' h';
+  document.getElementById('s-extra').textContent=(em/60).toFixed(2)+' h';
+  if(ds!==null&&de!==null&&de>ds){
+    const dur=de-ds;
+    const {total:fixedMins, labels:fixedLabels}=calcFixedBreakMins(ds,de);
+    const bm=dur-wm-em; // 固定休憩含む空き全体
+    document.getElementById('s-duration').textContent=(dur/60).toFixed(2)+' h';
+    document.getElementById('s-break').textContent=(bm/60).toFixed(2)+' h';
+    const detail=document.getElementById('s-break-detail');
+    if(detail) detail.textContent=fixedLabels.length?'（'+fixedLabels.join('・')+'）':'';
+    document.getElementById('s-actual').textContent=(wm/60).toFixed(2)+' h';
+    const warn=document.getElementById('s-warn');
+    if(wm+em>dur){warn.style.display='block';warn.textContent='⚠ 作業時間＋休憩の合計が業務時間を超えています。';}
+    else warn.style.display='none';
+  } else {
+    document.getElementById('s-duration').textContent='-- h';
+    document.getElementById('s-break').textContent='-- h';
+    document.getElementById('s-actual').textContent=(wm/60).toFixed(2)+' h';
+    document.getElementById('s-warn').style.display='none';
+  }
+  const lines=[];
+  document.querySelectorAll('.work-entry').forEach(r=>{
+    const s=toMin(r.querySelector('.e-start').value),e=toMin(r.querySelector('.e-end').value);
+    let d=0;if(s!==null&&e!==null&&e>s)d=(e-s)/60;
+    const sv=r.querySelector('.e-start').value,ev=r.querySelector('.e-end').value;
+    const item=r.querySelector('.e-item').value,type=r.querySelector('.e-type').value;
+    if(d>0)lines.push(`<div class="work-line"><span class="work-line-time">${sv}〜${ev}</span><span class="work-line-name">${item}／${type}</span><span class="work-line-h">${d.toFixed(2)}h</span></div>`);
+    const pill=r.querySelector('.duration-pill');if(pill)pill.textContent=d>0?d.toFixed(2)+' h':'--';
+  });
+  document.getElementById('sum-entries').innerHTML=lines.length?lines.join(''):'<span style="color:#aaa">作業を追加してください</span>';
+}
+function addExtraBreak(mins=5){
+  ebCounter++;const id='eb-'+ebCounter;const div=document.createElement('div');div.className='eb-row';div.id=id;
+  div.innerHTML=`<span style="font-size:12px;color:#888;flex-shrink:0">追加休憩</span><select class="eb-mins" onchange="calcSummary()" style="flex:1;font-size:14px;padding:6px 10px;border:1px solid #ddd;border-radius:6px"><option value="5"${mins===5?' selected':''}>5分</option><option value="10"${mins===10?' selected':''}>10分</option><option value="15"${mins===15?' selected':''}>15分</option><option value="20"${mins===20?' selected':''}>20分</option><option value="25"${mins===25?' selected':''}>25分</option><option value="30"${mins===30?' selected':''}>30分</option></select><button class="btn btn-sm btn-danger" onclick="document.getElementById('${id}').remove();calcSummary()" style="flex-shrink:0">✕</button>`;
+  document.getElementById('extra-breaks').appendChild(div);calcSummary();
+}
+function addWorkEntry(item='',type='',sv='',ev=''){
+  if(!sv){
+    const entries=document.querySelectorAll('.work-entry');
+    if(entries.length>0){
+      const lastEnd=entries[entries.length-1].querySelector('.e-end');
+      if(lastEnd) sv=lastEnd.value||'08:00';
+    } else sv='08:00';
+  }
+  if(!ev){
+    const sm=toMin(sv);
+    if(sm!==null){
+      const em=sm+60;
+      ev=em<1440?pad(Math.floor(em/60))+':'+pad(em%60):'24:00';
+    } else ev='10:00';
+  }
+  entryCounter++;const id='we-'+entryCounter;const div=document.createElement('div');div.className='work-entry';div.id=id;
+  const iOpts=WORK_ITEMS.map(w=>`<option${w===item?' selected':''}>${w}</option>`).join('');
+  const tOpts=WORK_TYPES.map(t=>`<option${t===type?' selected':''}>${t}</option>`).join('');
+  div.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px"><span class="entry-num">${entryCounter}</span><span class="duration-pill">--</span></div><button class="btn btn-sm btn-danger" onclick="document.getElementById('${id}').remove();calcSummary()">✕ 削除</button></div><div class="grid2" style="margin-bottom:8px"><div><label style="font-size:12px;color:#888;display:block;margin-bottom:4px">作業品目</label><select class="e-item">${iOpts}</select></div><div><label style="font-size:12px;color:#888;display:block;margin-bottom:4px">作業内容</label><select class="e-type">${tOpts}</select></div></div><div style="display:flex;align-items:center;gap:8px"><div style="flex:1"><label style="font-size:12px;color:#888;display:block;margin-bottom:4px">開始時刻</label><select class="e-start" onchange="calcSummary()"></select></div><div style="padding-top:18px;color:#aaa">〜</div><div style="flex:1"><label style="font-size:12px;color:#888;display:block;margin-bottom:4px">終了時刻</label><select class="e-end" onchange="calcSummary()"></select></div></div>`;
+  document.getElementById('work-entries').appendChild(div);
+  buildOpts(div.querySelector('.e-start'),sv||'08:00');buildOpts(div.querySelector('.e-end'),ev||'10:00');calcSummary();
+}
+function saveReport(){
+  const worker=document.getElementById('worker-name').value,date=document.getElementById('work-date').value;
+  if(!worker||!date){setMsg('save-msg','err-msg','⚠ 作業者名と日付を入力してください');return;}
+  const works=[];
+  document.querySelectorAll('.work-entry').forEach(r=>{
+    const item=r.querySelector('.e-item').value,type=r.querySelector('.e-type').value;
+    const s=r.querySelector('.e-start').value,e=r.querySelector('.e-end').value;
+    const sm=toMin(s),em=toMin(e),h=sm!==null&&em!==null&&em>sm?(em-sm)/60:0;
+    if(h>0)works.push({item,type,start:s,end:e,hours:h});
+  });
+  if(!works.length){setMsg('save-msg','err-msg','⚠ 作業内容を1件以上入力してください');return;}
+  const extraBreaks=[];
+  document.querySelectorAll('.eb-row').forEach(r=>{const m=parseInt(r.querySelector('.eb-mins').value)||0;if(m)extraBreaks.push({mins:m});});
+  const ds=toMin(document.getElementById('day-start').value),de=toMin(document.getElementById('day-end').value);
+  const wm=works.reduce((s,w)=>s+w.hours*60,0),em=getExtraMins();
+  const rec={id:editId||Date.now().toString(),worker,date,dayStart:document.getElementById('day-start').value,dayEnd:document.getElementById('day-end').value,durationMins:ds&&de&&de>ds?de-ds:null,workMins:wm,extraBreaks,extraBreakMins:em,works};
+  if(editId){const i=reports.findIndex(r=>r.id===editId);if(i>-1)reports[i]=rec;editId=null;}
+  else reports.unshift(rec);
+  saveLocal();
+  // スプレッドシートに送信
+  document.getElementById('overlay').classList.add('show');
+  setMsg('save-msg','syncing','送信中...');
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(rec)})
+    .then(()=>{
+      document.getElementById('overlay').classList.remove('show');
+      setMsg('save-msg','ok-msg','✓ 保存＆スプレッドシートに送信しました');
+      setTimeout(()=>{document.getElementById('save-msg').textContent='';},4000);
+      resetForm();
+    })
+    .catch(()=>{
+      document.getElementById('overlay').classList.remove('show');
+      setMsg('save-msg','err-msg','⚠ 送信エラー。ローカルには保存済みです。Wi-Fiを確認してください。');
+    });
+}
+function setMsg(id,cls,text){const el=document.getElementById(id);el.className=cls;el.textContent=text;}
+function resetForm(){
+  document.getElementById('worker-name').value='';document.getElementById('work-date').value=today();
+  document.getElementById('work-entries').innerHTML='';document.getElementById('extra-breaks').innerHTML='';
+  entryCounter=0;ebCounter=0;editId=null;calcSummary();
+}
+function today(){return new Date().toISOString().substring(0,10);}
+function exportData(){
+  if(!reports.length){
+    document.getElementById('export-msg').style.color='#c00';
+    document.getElementById('export-msg').textContent='エクスポートするデータがありません。';
+    return;
+  }
+  const json=JSON.stringify({version:1,exported:new Date().toISOString(),records:reports},null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='作業日報データ_'+new Date().toISOString().substring(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('export-msg').style.color='#166534';
+  document.getElementById('export-msg').textContent='✓ '+reports.length+'件のデータをダウンロードしました。';
+}
+
+function importData(){
+  const file=document.getElementById('import-file').files[0];
+  const msg=document.getElementById('import-msg');
+  if(!file){msg.style.color='#c00';msg.textContent='ファイルを選択してください。';return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const json=JSON.parse(e.target.result);
+      const incoming=json.records||json;
+      if(!Array.isArray(incoming)) throw new Error('形式が正しくありません');
+      const existingIds=new Set(reports.map(r=>r.id));
+      let added=0,skipped=0;
+      incoming.forEach(r=>{
+        if(r.id&&existingIds.has(r.id)){skipped++;}
+        else{reports.unshift(r);added++;}
+      });
+      saveLocal();
+      msg.style.color='#166534';
+      msg.textContent='✓ '+added+'件を追加しました。（重複スキップ：'+skipped+'件）';
+    }catch(err){
+      msg.style.color='#c00';
+      msg.textContent='⚠ 読み込みエラー：'+err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function renderCross(){
+  const fm=document.getElementById('cross-month').value;
+  const fl=reports.filter(r=>!fm||r.date.startsWith(fm));
+  if(!fl.length){document.getElementById('cross-wrap').innerHTML='<div style="text-align:center;color:#aaa;padding:2rem">データなし</div>';return;}
+  const rows=[];
+  fl.forEach(r=>r.works.forEach(w=>rows.push({item:w.item,type:w.type,hours:w.hours})));
+  const items=[...new Set(rows.map(r=>r.item).filter(Boolean))].sort();
+  const types=[...new Set(rows.map(r=>r.type).filter(Boolean))].sort();
+  const map={},itemTotal={},typeTotal={};
+  rows.forEach(r=>{
+    if(!r.item||!r.type)return;
+    if(!map[r.item])map[r.item]={};
+    map[r.item][r.type]=(map[r.item][r.type]||0)+r.hours;
+    itemTotal[r.item]=(itemTotal[r.item]||0)+r.hours;
+    typeTotal[r.type]=(typeTotal[r.type]||0)+r.hours;
+  });
+  const grandTotal=Object.values(itemTotal).reduce((s,v)=>s+v,0);
+  const sortedItems=items.sort((a,b)=>(itemTotal[b]||0)-(itemTotal[a]||0));
+  let html='<table style="font-size:12px;min-width:500px;border-collapse:collapse"><thead><tr>';
+  html+='<th style="background:#f5f5f3;padding:6px 8px;border-bottom:2px solid #ddd;text-align:left;white-space:nowrap;min-width:120px">作業品目</th>';
+  types.forEach(t=>{html+=`<th style="background:#f5f5f3;padding:6px 8px;border-bottom:2px solid #ddd;text-align:right;white-space:nowrap">${t}</th>`;});
+  html+='<th style="background:#e8f0fe;padding:6px 8px;border-bottom:2px solid #ddd;text-align:right;font-weight:700">合計</th>';
+  html+='</tr></thead><tbody>';
+  sortedItems.forEach(item=>{
+    html+='<tr>';
+    html+=`<td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:500;white-space:nowrap">${item}</td>`;
+    types.forEach(type=>{
+      const h=map[item]&&map[item][type]?map[item][type]:0;
+      const alpha=h>0?Math.min(h/20,0.35).toFixed(2):'0';
+      html+=`<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;background:rgba(37,99,235,${alpha})">${h>0?h.toFixed(2):'-'}</td>`;
+    });
+    html+=`<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-weight:700;background:#e8f0fe">${(itemTotal[item]||0).toFixed(2)}</td>`;
+    html+='</tr>';
+  });
+  html+='<tr style="background:#f5f5f3;font-weight:700"><td style="padding:6px 8px">合計</td>';
+  types.forEach(type=>{html+=`<td style="padding:6px 8px;text-align:right">${(typeTotal[type]||0).toFixed(2)}</td>`;});
+  html+=`<td style="padding:6px 8px;text-align:right;background:#c7d7f8">${grandTotal.toFixed(2)}</td>`;
+  html+='</tr></tbody></table>';
+  document.getElementById('cross-wrap').innerHTML=html;
+}
+
+function switchTab(t,btn){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(e=>e.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('panel-'+t).classList.add('active');
+  if(t==='history')renderHistory();if(t==='dashboard')renderDashboard();
+}
+function renderHistory(){
+  const fw=document.getElementById('filter-worker').value,fm=document.getElementById('filter-month').value;
+  const fl=reports.filter(r=>(!fw||r.worker===fw)&&(!fm||r.date.startsWith(fm)));
+  document.getElementById('record-count').textContent=fl.length+'件';
+  const el=document.getElementById('history-list');
+  if(!fl.length){el.innerHTML='<div style="text-align:center;color:#aaa;padding:2rem">記録がありません</div>';return;}
+  el.innerHTML=fl.map(r=>{
+    const wh=r.works.reduce((s,w)=>s+w.hours,0),durH=r.durationMins?r.durationMins/60:null,eh=(r.extraBreakMins||0)/60,bh=durH!==null?durH-wh-eh:null;
+    const badges=r.works.slice(0,4).map((w,i)=>`<span class="badge ${BADGE[i%5]}">${w.item}／${w.type} ${w.hours.toFixed(2)}h</span>`).join('');
+    const more=r.works.length>4?`<span style="font-size:11px;color:#aaa;margin-left:4px">他${r.works.length-4}件</span>`:'';
+    return `<div class="log-item"><div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:6px"><div><strong>${r.date}</strong><span style="margin-left:8px;color:#555">${r.worker}</span><span style="margin-left:8px;font-size:12px;color:#aaa">${r.dayStart||'--'}〜${r.dayEnd||'--'}</span></div><div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="editReport('${r.id}')">✏️ 修正</button><button class="btn btn-sm btn-danger" onclick="deleteReport('${r.id}')">🗑</button></div></div><div style="font-size:12px;color:#888;margin-top:3px">実働 <strong>${wh.toFixed(2)}h</strong>${durH!==null?' ／ 業務 '+durH.toFixed(2)+'h':''}${bh!==null?' ／ 固定休憩等 '+bh.toFixed(2)+'h':''}${eh>0?' ／ その他休憩 '+eh.toFixed(2)+'h':''}</div><div style="margin-top:6px;display:flex;flex-wrap:wrap">${badges}${more}</div></div>`;
+  }).join('');
+}
+function editReport(id){
+  const r=reports.find(x=>x.id===id);if(!r)return;
+  document.querySelectorAll('.tab')[0].click();
+  setTimeout(()=>{
+    document.getElementById('worker-name').value=r.worker;document.getElementById('work-date').value=r.date;
+    document.getElementById('day-start').value=r.dayStart||'08:00';document.getElementById('day-end').value=r.dayEnd||'17:00';
+    document.getElementById('work-entries').innerHTML='';document.getElementById('extra-breaks').innerHTML='';
+    entryCounter=0;ebCounter=0;
+    r.works.forEach(w=>addWorkEntry(w.item,w.type,w.start,w.end));
+    (r.extraBreaks||[]).forEach(b=>addExtraBreak(b.mins||15));
+    editId=r.id;calcSummary();setMsg('save-msg','info-msg','修正モード — 変更後に保存してください');
+  },50);
+}
+function deleteReport(id){if(!confirm('この記録を削除しますか？'))return;reports=reports.filter(r=>r.id!==id);saveLocal();renderHistory();}
+function renderDashboard(){
+  const fm=document.getElementById('dash-month').value,fw=document.getElementById('dash-worker').value;
+  const fl=reports.filter(r=>(!fw||r.worker===fw)&&(!fm||r.date.startsWith(fm)));
+  const wh=fl.reduce((s,r)=>s+r.works.reduce((ss,w)=>ss+w.hours,0),0);
+  const days=[...new Set(fl.map(r=>r.date))].length;
+  const bh=fl.reduce((s,r)=>{const wH=r.works.reduce((ss,w)=>ss+w.hours,0),eH=(r.extraBreakMins||0)/60;return r.durationMins?s+r.durationMins/60-wH-eH:s;},0);
+  document.getElementById('dash-metrics').innerHTML=`<div class="metric"><div class="metric-label">作業時間合計</div><div class="metric-value">${wh.toFixed(1)}<span class="metric-unit"> h</span></div></div><div class="metric"><div class="metric-label">記録件数</div><div class="metric-value">${fl.length}<span class="metric-unit"> 件</span></div></div><div class="metric"><div class="metric-label">稼働日数</div><div class="metric-value">${days}<span class="metric-unit"> 日</span></div></div><div class="metric"><div class="metric-label">固定休憩・空き</div><div class="metric-value">${bh.toFixed(1)}<span class="metric-unit"> h</span></div></div>`;
+  function rank(map,cid){const s=Object.entries(map).sort((a,b)=>b[1]-a[1]),mx=s[0]?s[0][1]:1;document.getElementById(cid).innerHTML=s.length?s.slice(0,10).map((e,i)=>`<div class="progress-row"><div class="progress-label" title="${e[0]}">${i+1}. ${e[0]}</div><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${(e[1]/mx*100).toFixed(1)}%;background:${BAR_COLORS[i%8]}"></div></div><div class="progress-val">${e[1].toFixed(2)}h</div></div>`).join(''):'<div style="color:#aaa;text-align:center;padding:1rem">データなし</div>';}
+  const im={},tm={};fl.forEach(r=>r.works.forEach(w=>{im[w.item]=(im[w.item]||0)+w.hours;tm[w.type]=(tm[w.type]||0)+w.hours;}));
+  rank(im,'dash-items');rank(tm,'dash-types');
+  const wm={};fl.forEach(r=>{const h=r.works.reduce((s,w)=>s+w.hours,0);wm[r.worker]=(wm[r.worker]||0)+h;});
+  const ws=Object.entries(wm).sort((a,b)=>b[1]-a[1]),wmx=ws[0]?ws[0][1]:1;
+  document.getElementById('dash-workers').innerHTML=ws.length?ws.map((e,i)=>`<div class="progress-row"><div class="progress-label">${e[0]}</div><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${(e[1]/wmx*100).toFixed(1)}%;background:${BAR_COLORS[i%8]}"></div></div><div class="progress-val">${e[1].toFixed(2)}h</div></div>`).join(''):'<div style="color:#aaa;text-align:center;padding:1rem">データなし</div>';
+  const mm={};reports.forEach(r=>{const mo=r.date.substring(0,7),h=r.works.reduce((s,w)=>s+w.hours,0);mm[mo]=(mm[mo]||0)+h;});
+  const lb=Object.keys(mm).sort(),dt=lb.map(m=>parseFloat(mm[m].toFixed(2)));
+  const ctx=document.getElementById('trend-chart').getContext('2d');
+  if(trendChart)trendChart.destroy();
+  trendChart=new Chart(ctx,{type:'bar',data:{labels:lb,datasets:[{label:'作業時間(h)',data:dt,backgroundColor:'#2563eb',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'h'}}}}});
+}
+document.getElementById('work-date').value=today();
+document.getElementById('filter-month').value=today().substring(0,7);
+document.getElementById('dash-month').value=today().substring(0,7);
+buildOpts(document.getElementById('day-start'),'08:00');
+buildOpts(document.getElementById('day-end'),'17:00');
+calcSummary();renderDashboard();
+</script>
+</body>
+</html>
