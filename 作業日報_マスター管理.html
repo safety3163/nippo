@@ -287,7 +287,8 @@ function renderDashboard(){
   const avgH=daySet.size>0?(totalH/daySet.size).toFixed(2):0;
   // 業務時間（重複排除）
   const bizSet={};
- fl.forEach(r=>{const k=r['作業者']+'_'+r['日付'];const v=parseFloat(r['業務時間(h)']||0);if(!bizSet[k]||v>bizSet[k])bizSet[k]=v;});                                                              
+ fl.forEach(r=>{const k=r['作業者']+'_'+r['日付'];const v=parseFloat(r['業務時間(h)']||0);if(!bizSet[k]||v>bizSet[k])bizSet[k]=v;});
+  const totalBiz=Object.values(bizSet).reduce((s,v)=>s+v,0);
   document.getElementById('dash-metrics').innerHTML=`
     <div class="metric"><div class="metric-label">作業時間合計</div><div class="metric-value">${totalH.toFixed(1)}<span class="metric-unit"> h</span></div></div>
     <div class="metric"><div class="metric-label">業務時間合計</div><div class="metric-value">${totalBiz.toFixed(1)}<span class="metric-unit"> h</span></div></div>
