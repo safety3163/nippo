@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>作業日報</title>
+<link rel="apple-touch-icon" href="nippo_icon2_256.png">
+<link rel="icon" href="nippo_icon2_256.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","メイリオ",sans-serif;background:#f2f2f7;color:#1c1c1e;font-size:15px;padding-bottom:40px}
@@ -16,7 +18,6 @@ body{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","メイリオ",sans
 .panel{display:none;padding:12px}.panel.active{display:block}
 .section{background:#fff;border-radius:12px;margin-bottom:12px;overflow:hidden}
 .section-header{padding:10px 14px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;background:#f2f2f7}
-/* ボタングリッド */
 .btn-grid{display:grid;gap:1px;background:#e0e0e0}
 .btn-grid.col2{grid-template-columns:1fr 1fr}
 .btn-grid.col3{grid-template-columns:1fr 1fr 1fr}
@@ -24,43 +25,37 @@ body{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","メイリオ",sans
 .choice-btn{padding:12px 6px;font-size:13px;text-align:center;cursor:pointer;border:none;background:#fff;color:#1c1c1e;font-family:inherit;line-height:1.3;transition:background .1s}
 .choice-btn:active{background:#e5e5ea}
 .choice-btn.selected{background:#007aff;color:#fff;font-weight:600}
+.time-select{width:100%;font-size:17px;padding:12px 14px;border:1px solid #d1d1d6;border-radius:10px;background:#fff;font-family:inherit;color:#1c1c1e;-webkit-appearance:menulist;appearance:menulist}
 .choice-btn.time-btn{font-size:14px;font-weight:500;padding:11px 4px}
-/* 入力フィールド */
 .field-row{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #f0f0f0}
 .field-row:last-child{border-bottom:none}
 .field-label{font-size:14px;color:#888;width:80px;flex-shrink:0}
 .field-value{flex:1;font-size:15px;font-weight:500}
 input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff;font-family:inherit;width:100%;outline:none}
-/* 作業カード */
 .work-card{background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden}
 .work-card-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f9f9f9;border-bottom:1px solid #f0f0f0}
 .work-card-num{width:24px;height:24px;border-radius:50%;background:#007aff;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .work-duration{font-size:13px;font-weight:600;color:#007aff}
 .del-btn{padding:5px 12px;font-size:12px;border:1px solid #ff3b30;border-radius:6px;background:#fff;color:#ff3b30;cursor:pointer;font-family:inherit}
-/* サマリー */
 .summary-row{display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid #f0f0f0;font-size:14px}
 .summary-row:last-child{border-bottom:none}
 .summary-label{color:#888}
 .summary-value{font-weight:500}
 .summary-row.total{font-weight:700;font-size:16px}
-/* ボタン */
 .add-btn{width:100%;padding:14px;font-size:15px;border:none;border-radius:12px;background:#007aff;color:#fff;cursor:pointer;font-family:inherit;font-weight:600;margin-bottom:10px}
 .add-btn:active{background:#0056b3}
 .save-btn{width:100%;padding:15px;font-size:16px;border:none;border-radius:12px;background:#34c759;color:#fff;cursor:pointer;font-family:inherit;font-weight:700;margin-top:4px}
 .save-btn:active{background:#28a745}
 .reset-btn{width:100%;padding:12px;font-size:14px;border:1px solid #ccc;border-radius:12px;background:#fff;color:#666;cursor:pointer;font-family:inherit;margin-top:8px}
-/* メッセージ */
 .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px;text-align:center}
 .msg.ok{background:#d4edda;color:#155724}
 .msg.err{background:#f8d7da;color:#721c24}
 .msg.info{background:#d1ecf1;color:#0c5460}
-/* オーバーレイ */
 #overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center}
 #overlay.show{display:flex}
 .overlay-box{background:#fff;border-radius:16px;padding:28px 32px;text-align:center}
 .spinner{width:36px;height:36px;border:3px solid #eee;border-top-color:#007aff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* ダッシュボード */
 .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .metric{background:#fff;border-radius:12px;padding:14px;text-align:center}
 .metric-label{font-size:11px;color:#888;margin-bottom:4px}
@@ -75,7 +70,6 @@ input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff
 .rank-val{font-size:12px;font-weight:600;min-width:40px;text-align:right;flex-shrink:0}
 .filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .filter-row select,.filter-row input{font-size:14px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;font-family:inherit;color:#1c1c1e}
-/* 履歴 */
 .log-card{background:#fff;border-radius:12px;margin-bottom:10px;padding:12px 14px}
 .log-date{font-weight:700;font-size:15px}
 .log-meta{font-size:12px;color:#888;margin-top:3px}
@@ -102,17 +96,14 @@ input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff
   <button class="tab" onclick="switchTab('dashboard',this)">📊 集計</button>
 </div>
 
-<!-- 入力 -->
 <div id="panel-input" class="panel active">
 
-  <!-- 基本情報 -->
   <div class="section">
     <div class="section-header">基本情報</div>
     <div class="field-row"><span class="field-label">作業者</span><div class="field-value" id="disp-worker" style="color:#007aff" onclick="showPicker('worker')">タップして選択</div></div>
     <div class="field-row"><span class="field-label">作業日</span><div class="field-value"><input type="date" id="work-date"></div></div>
   </div>
 
-  <!-- 作業者選択 -->
   <div id="picker-worker" style="display:none">
     <div class="section">
       <div class="section-header">作業者を選択</div>
@@ -120,17 +111,15 @@ input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff
     </div>
   </div>
 
-  <!-- 業務時間 -->
   <div class="section">
     <div class="section-header">業務開始時刻</div>
-    <div class="btn-grid col4" id="start-btns"></div>
+    <select id="start-select" class="time-select" onchange="selectTime('start',this.value)"></select>
   </div>
   <div class="section">
     <div class="section-header">業務終了時刻</div>
-    <div class="btn-grid col4" id="end-btns"></div>
+    <select id="end-select" class="time-select" onchange="selectTime('end',this.value)"></select>
   </div>
 
-  <!-- その他休憩 -->
   <div class="section">
     <div class="section-header" style="display:flex;align-items:center;justify-content:space-between">
       <span>その他休憩</span>
@@ -139,7 +128,6 @@ input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff
     <div id="extra-breaks-area" style="padding:8px 14px"></div>
   </div>
 
-  <!-- サマリー -->
   <div class="section">
     <div class="section-header">時間サマリー</div>
     <div class="summary-row"><span class="summary-label">業務時間</span><span class="summary-value" id="s-duration">--</span></div>
@@ -150,7 +138,6 @@ input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff
     <div id="s-warn" style="display:none;padding:8px 14px;font-size:12px;color:#b45309;background:#fef9c3"></div>
   </div>
 
-  <!-- 作業一覧 -->
   <div id="work-list"></div>
   <button class="add-btn" onclick="addWork()">＋ 作業を追加</button>
 
@@ -159,7 +146,6 @@ input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff
   <div id="save-msg"></div>
 </div>
 
-<!-- 記録 -->
 <div id="panel-history" class="panel">
   <div class="filter-row">
     <select id="filter-worker" onchange="renderHistory()" style="flex:1">
@@ -174,7 +160,6 @@ input[type=date]{font-size:15px;border:none;background:transparent;color:#007aff
   <div id="history-list"><div style="text-align:center;color:#aaa;padding:2rem">記録がありません</div></div>
 </div>
 
-<!-- 集計 -->
 <div id="panel-dashboard" class="panel">
   <div class="filter-row">
     <input type="month" id="dash-month" onchange="renderDashboard()" style="flex:1">
@@ -204,14 +189,13 @@ const BADGE=['b0','b1','b2','b3','b4'];
 let reports=JSON.parse(localStorage.getItem('nippo_iphone')||'[]');
 let editId=null, workCounter=0, ebCounter=0;
 let selWorker='', selStart='08:00', selEnd='17:00';
-let works=[]; // [{id,item,type,start,end}]
+let works=[];
 
 function save(){localStorage.setItem('nippo_iphone',JSON.stringify(reports));}
 function toMin(t){if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+m;}
 function pad(n){return String(n).padStart(2,'0');}
 function today(){return new Date().toISOString().substring(0,10);}
 
-// 作業者ボタン生成
 function buildWorkerBtns(){
   const el=document.getElementById('worker-btns');
   el.innerHTML=WORKERS.map(w=>`<button class="choice-btn${w===selWorker?' selected':''}" onclick="selectWorker('${w}')">${w}</button>`).join('');
@@ -228,12 +212,11 @@ function showPicker(type){
   el.style.display=el.style.display==='none'?'block':'none';
 }
 
-// 時刻ボタン生成
 function buildTimeBtns(){
-  const startEl=document.getElementById('start-btns');
-  const endEl=document.getElementById('end-btns');
-  startEl.innerHTML=TIMES.map(t=>`<button class="choice-btn time-btn${t===selStart?' selected':''}" onclick="selectTime('start','${t}')">${t}</button>`).join('');
-  endEl.innerHTML=TIMES.map(t=>`<button class="choice-btn time-btn${t===selEnd?' selected':''}" onclick="selectTime('end','${t}')">${t}</button>`).join('');
+  const startEl=document.getElementById('start-select');
+  const endEl=document.getElementById('end-select');
+  startEl.innerHTML=TIMES.map(t=>`<option value="${t}"${t===selStart?' selected':''}>${t}</option>`).join('');
+  endEl.innerHTML=TIMES.map(t=>`<option value="${t}"${t===selEnd?' selected':''}>${t}</option>`).join('');
 }
 function selectTime(type,val){
   if(type==='start') selStart=val;
@@ -242,7 +225,6 @@ function selectTime(type,val){
   calcSummary();
 }
 
-// その他休憩
 function addExtraBreak(mins=5){
   ebCounter++;
   const id='eb-'+ebCounter;
@@ -273,7 +255,6 @@ function getExtraMins(){
   return t;
 }
 
-// 固定休憩計算
 function calcFixedBreakMins(ds,de){
   const FIXED=[{s:600,e:615},{s:720,e:780},{s:900,e:915},{s:1020,e:1035}];
   let total=0;
@@ -306,7 +287,6 @@ function calcSummary(){
   renderWorkList();
 }
 
-// 作業追加
 function addWork(item='',type='',start='08:00',end='10:00'){
   workCounter++;
   const id='w-'+workCounter;
@@ -323,8 +303,8 @@ function renderWorkList(){
     const dur=sm!==null&&em!==null&&em>sm?(em-sm)/60:0;
     const iOpts=WORK_ITEMS.map(it=>`<button class="choice-btn${it===w.item?' selected':''}" onclick="setWork('${w.id}','item','${it}')">${it}</button>`).join('');
     const tOpts=WORK_TYPES.map(t=>`<button class="choice-btn${t===w.type?' selected':''}" onclick="setWork('${w.id}','type','${t}')">${t}</button>`).join('');
-    const sOpts=TIMES.map(t=>`<button class="choice-btn time-btn${t===w.start?' selected':''}" onclick="setWork('${w.id}','start','${t}')">${t}</button>`).join('');
-    const eOpts=TIMES.map(t=>`<button class="choice-btn time-btn${t===w.end?' selected':''}" onclick="setWork('${w.id}','end','${t}')">${t}</button>`).join('');
+    const sOpts=TIMES.map(t=>`<option value="${t}"${t===w.start?' selected':''}>${t}</option>`).join('');
+    const eOpts=TIMES.map(t=>`<option value="${t}"${t===w.end?' selected':''}>${t}</option>`).join('');
     return `<div class="work-card">
       <div class="work-card-header">
         <div style="display:flex;align-items:center;gap:8px"><span class="work-card-num">${idx+1}</span><span class="work-duration">${dur>0?dur.toFixed(2)+'h':'--'}</span></div>
@@ -336,9 +316,9 @@ function renderWorkList(){
         <div style="font-size:12px;color:#888;margin-bottom:6px;font-weight:600">作業内容</div>
         <div class="btn-grid col3" style="border-radius:8px;overflow:hidden;margin-bottom:10px">${tOpts}</div>
         <div style="font-size:12px;color:#888;margin-bottom:6px;font-weight:600">開始時刻</div>
-        <div class="btn-grid col4" style="border-radius:8px;overflow:hidden;margin-bottom:10px">${sOpts}</div>
+        <select class="time-select" style="margin-bottom:10px" onchange="setWork('${w.id}','start',this.value)">${sOpts}</select>
         <div style="font-size:12px;color:#888;margin-bottom:6px;font-weight:600">終了時刻</div>
-        <div class="btn-grid col4" style="border-radius:8px;overflow:hidden">${eOpts}</div>
+        <select class="time-select" onchange="setWork('${w.id}','end',this.value)">${eOpts}</select>
       </div>
     </div>`;
   }).join('');
@@ -468,7 +448,13 @@ function renderDashboard(){
   document.getElementById('dash-workers').innerHTML=ws.length?ws.map((e,i)=>`<div class="rank-row"><span class="rank-label">${e[0]}</span><div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${(e[1]/wmx*100).toFixed(1)}%;background:${BAR_COLORS[i%8]}"></div></div><span class="rank-val">${e[1].toFixed(1)}h</span></div>`).join(''):'<div style="color:#aaa;text-align:center;padding:1rem">データなし</div>';
 }
 
-// 初期化
+function switchTab(t,btn){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(e=>e.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('panel-'+t).classList.add('active');
+  if(t==='history')renderHistory();if(t==='dashboard')renderDashboard();
+}
+
 document.getElementById('work-date').value=today();
 document.getElementById('filter-month').value=today().substring(0,7);
 document.getElementById('dash-month').value=today().substring(0,7);
